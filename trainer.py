@@ -55,7 +55,7 @@ class MLTrainer:
             self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.lr, weight_decay=self.decay)
 
 
-        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, factor=0.7, patience=5, min_lr=0.00001)
+        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, factor=0.9, patience=25, min_lr=0.0001)
 
         self.wandb_config = self._create_config()
         self._initiate_wandb_run()
