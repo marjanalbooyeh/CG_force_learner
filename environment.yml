@@ -1,0 +1,13 @@
+name: LJ-ML
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - pytorch
+  - pytorch-cuda=11.7
+  - signac=1.7.0
+  - signac-flow=0.18.1
+  - numpy
+  - pandas
+  - rowan
+  - h5py
