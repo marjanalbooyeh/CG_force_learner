@@ -20,21 +20,21 @@ def get_parameters():
     parameters = OrderedDict()
 
     # project parameters
-    parameters["project"] = ["LJ-single-particle"]
+    parameters["project"] = ["LJ-May24"]
     parameters["group"] = ["force"]
     parameters["notes"] = ["Learning LJ force curve using positions"]
     parameters["tags"] = [["PPS", "NN", "force", "fixedNN"]]
 
     # dataset parameters
-    parameters["data_path"] = ["../datasets/single_particle"]
-    parameters["inp_mode"] = ["pos", "r"]
-    parameters["batch_size"] = [64]
+    parameters["data_path"] = ["../../../datasets/single_particle"]
+    parameters["inp_mode"] = ["r"]
+    parameters["batch_size"] = [16, 64]
 
     # model parameters
     parameters["model_type"] = ["fixed"]
-    parameters["hidden_dim"] = [32, 64]
-    parameters["n_layer"] = [2, 10]
-    parameters["act_fn"] = ["Tanh", "LeakyReLU"]
+    parameters["hidden_dim"] = [32, 64, 128]
+    parameters["n_layer"] = [2]
+    parameters["act_fn"] = ["Tanh"]
     parameters["dropout"] = [0.5]
 
     # optimizer parameters
