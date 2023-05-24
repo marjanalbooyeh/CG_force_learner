@@ -26,7 +26,7 @@ def get_parameters():
     parameters["tags"] = [["PPS", "NN", "force", "fixedNN"]]
 
     # dataset parameters
-    parameters["data_path"] = ["/home/marjanalbooyeh/code/ML_LJ/datasets/single_particle"]
+    parameters["data_path"] = ["../datasets/single_particle"]
     parameters["inp_mode"] = ["pos", "r"]
     parameters["batch_size"] = [64]
 
