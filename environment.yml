@@ -1,13 +1,19 @@
 name: LJ-ML
 channels:
   - conda-forge
+  - pytorch
+  - nvidia
   - defaults
 dependencies:
   - pytorch
   - pytorch-cuda=11.7
   - signac=1.7.0
   - signac-flow=0.18.1
+  - gsd
+  - hoomd=3.11=*gpu*
   - numpy
   - pandas
   - rowan
   - h5py
+  - jupyter
+  - matplotlib
