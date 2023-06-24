@@ -31,6 +31,7 @@ def get_parameters():
     parameters["inp_mode"] = ["append"]
     parameters["augmented"] = ["r"]
     parameters["batch_size"] = [32]
+    parameters["shrink"] = [False]
 
     # model parameters
     parameters["model_type"] = ["fixed"]
