@@ -6,8 +6,8 @@
 {% if partition %}
 #SBATCH --partition={{ partition }}
 {% endif %}
-{% if cpus-per-task %}
-#SBATCH --cpus-per-task={{ cpus-per-task }}
+{% if cpus %}
+#SBATCH --cpus-per-task={{ cpus }}
 {% endif %}
 {% if walltime %}
 #SBATCH -t {{ 48|format_timedelta }}

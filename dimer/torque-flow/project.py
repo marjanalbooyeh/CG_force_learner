@@ -65,7 +65,7 @@ class Fry(DefaultSlurmEnvironment):
             help="Specify the partition to submit to."
         )
         parser.add_argument(
-            "--cpus-per-task",
+            "--cpus",
             default=5,
             help="Specify cpu-cores per task."
         )
