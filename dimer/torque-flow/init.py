@@ -20,23 +20,24 @@ def get_parameters():
     parameters = OrderedDict()
 
     # project parameters
-    parameters["project"] = ["Dimer-Learner-V3"]
+    parameters["project"] = ["Dimer-Learner-V4"]
     parameters["group"] = ["torque"]
     parameters["notes"] = ["Learning dimer torques"]
     parameters["tags"] = [["NN", "torque", "fixedNN"]]
     parameters["target_type"] = ["torque"]
 
     # dataset parameters
-    parameters["data_path"] = ["/home/marjanalbooyeh/code/ML_LJ/dimer-learner/CG_ML_workflow/dataset/dimerv3/"]
+    parameters["data_path"] = ["/home/erjank_project/caesreu/datasets/dimer/"]
     parameters["inp_mode"] = ["append"]
     parameters["augmented"] = ["r"]
-    parameters["batch_size"] = [64, 128]
+    parameters["batch_size"] = [32]
+    parameters["shrink"] = [False]
 
     # model parameters
     parameters["model_type"] = ["fixed"]
-    parameters["hidden_dim"] = [128, 256]
-    parameters["n_layer"] = [2]
-    parameters["act_fn"] = ["Tanh"]
+    parameters["hidden_dim"] = [128]
+    parameters["n_layer"] = [2, 3]
+    parameters["act_fn"] = ["Tanh", "ReLU"]
     parameters["dropout"] = [0.5]
     parameters["pool"] = ["mean"]
 
@@ -46,7 +47,7 @@ def get_parameters():
     parameters["decay"] = [0.0001]
 
     # run parameters
-    parameters["epochs"] = [50000]
+    parameters["epochs"] = [80000]
 
     return list(parameters.keys()), list(product(*parameters.values()))
 

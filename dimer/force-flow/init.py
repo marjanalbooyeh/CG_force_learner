@@ -20,34 +20,34 @@ def get_parameters():
     parameters = OrderedDict()
 
     # project parameters
-    parameters["project"] = ["Dimer-Learner-V3"]
-    parameters["group"] = ["force-small"]
+    parameters["project"] = ["Dimer-Learner-V4"]
+    parameters["group"] = ["force"]
     parameters["notes"] = ["Learning dimer forces"]
     parameters["tags"] = [["NN", "force", "fixedNN"]]
     parameters["target_type"] = ["force"]
 
     # dataset parameters
-    parameters["data_path"] = ["/home/marjanalbooyeh/code/ML_LJ/dimer-learner/CG_ML_workflow/dataset/dimerv3-shrinkzero/"]
+    parameters["data_path"] = ["/home/erjank_project/caesreu/datasets/dimer/"]
     parameters["inp_mode"] = ["append"]
     parameters["augmented"] = ["r"]
-    parameters["batch_size"] = [64]
+    parameters["batch_size"] = [32]
     parameters["shrink"] = [False]
 
     # model parameters
     parameters["model_type"] = ["fixed"]
-    parameters["hidden_dim"] = [64]
+    parameters["hidden_dim"] = [64, 128]
     parameters["n_layer"] = [2]
-    parameters["act_fn"] = ["Tanh"]
+    parameters["act_fn"] = ["Tanh", "ReLU", "ELU"]
     parameters["dropout"] = [0.5]
     parameters["pool"] = ["mean"]
 
     # optimizer parameters
     parameters["optim"] = ["Adam"]
-    parameters["lr"] = [0.01]
+    parameters["lr"] = [0.1]
     parameters["decay"] = [0.0001]
 
     # run parameters
-    parameters["epochs"] = [50000]
+    parameters["epochs"] = [80000]
 
     return list(parameters.keys()), list(product(*parameters.values()))
 
