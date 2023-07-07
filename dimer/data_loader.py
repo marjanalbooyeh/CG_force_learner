@@ -53,3 +53,11 @@ def load_datasets(data_path, batch_size, inp_mode="append", shrink=False):
     test_dataloader = _get_data_loader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
 
     return train_dataloader, valid_dataloader, test_dataloader
+
+def load_test_dataset(data_path, batch_size, inp_mode="append"):
+    test_df = pd.read_pickle(os.path.join(data_path, 'test.pkl'))
+    test_dataset = CustomTrajDataset(test_df, mode=inp_mode)
+
+    test_dataloader = _get_data_loader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
+
+    return test_dataloader
