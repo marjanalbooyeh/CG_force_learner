@@ -28,18 +28,23 @@ def get_parameters():
 
     # dataset parameters
     parameters["data_path"] = ["/home/erjank_project/caesreu/datasets/dimer_Jul3/"]
+    # supported input modes: "append", "stack"
     parameters["inp_mode"] = ["append"]
+    # supported augmentations for rel. positions: "r" (center-to-center distance)
     parameters["augment_pos"] = ["r"]
+    # supported augmentations for rel. orientations: "a" (relative angle between two orientations)
     parameters["augment_orient"] = ["a"]
     parameters["batch_size"] = [64]
     parameters["shrink"] = [False]
 
     # model parameters
-    parameters["model_type"] = ["fixed"]
+    # supported model types: "NN", "NNSkipShared", "NNGrow"
+    parameters["model_type"] = ["NN"]
     parameters["hidden_dim"] = [64]
     parameters["n_layer"] = [3]
     parameters["act_fn"] = ["Tanh"]
     parameters["dropout"] = [0.3]
+    # supported pooling operations (only works when inp_mode="stack"): "mean", "max", "sum"
     parameters["pool"] = ["mean"]
 
     # optimizer parameters
@@ -47,6 +52,7 @@ def get_parameters():
     parameters["lr"] = [0.1]
     parameters["use_scheduler"] = [True]
     parameters["decay"] = [0.0001]
+    # supported loss types: "mse" (mean squared error), "mae" (means absolute error)
     parameters["loss_type"] = ["mse", "mae"]
 
     # run parameters

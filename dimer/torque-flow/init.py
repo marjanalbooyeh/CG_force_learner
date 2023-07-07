@@ -20,34 +20,43 @@ def get_parameters():
     parameters = OrderedDict()
 
     # project parameters
-    parameters["project"] = ["Dimer-Learner-V4"]
+    parameters["project"] = ["Dimer-Learner-Jul7"]
     parameters["group"] = ["torque"]
     parameters["notes"] = ["Learning dimer torques"]
     parameters["tags"] = [["NN", "torque", "fixedNN"]]
     parameters["target_type"] = ["torque"]
 
     # dataset parameters
-    parameters["data_path"] = ["/home/erjank_project/caesreu/datasets/dimer/"]
+    parameters["data_path"] = ["/home/erjank_project/caesreu/datasets/dimer_Jul3/"]
+    # supported input modes: "append", "stack"
     parameters["inp_mode"] = ["append"]
-    parameters["augmented"] = ["r"]
-    parameters["batch_size"] = [32]
+    # supported augmentations for rel. positions: "r" (center-to-center distance)
+    parameters["augment_pos"] = ["r"]
+    # supported augmentations for rel. orientations: "a" (relative angle between two orientations)
+    parameters["augment_orient"] = ["a"]
+    parameters["batch_size"] = [64]
     parameters["shrink"] = [False]
 
     # model parameters
-    parameters["model_type"] = ["fixed"]
-    parameters["hidden_dim"] = [128]
-    parameters["n_layer"] = [2, 3]
-    parameters["act_fn"] = ["Tanh", "ReLU"]
-    parameters["dropout"] = [0.5]
+    # supported model types: "NN", "NNSkipShared", "NNGrow"
+    parameters["model_type"] = ["NN"]
+    parameters["hidden_dim"] = [64]
+    parameters["n_layer"] = [3]
+    parameters["act_fn"] = ["Tanh"]
+    parameters["dropout"] = [0.3]
+    # supported pooling operations (only works when inp_mode="stack"): "mean", "max", "sum"
     parameters["pool"] = ["mean"]
 
     # optimizer parameters
     parameters["optim"] = ["Adam"]
     parameters["lr"] = [0.1]
+    parameters["use_scheduler"] = [True]
     parameters["decay"] = [0.0001]
+    # supported loss types: "mse" (mean squared error), "mae" (means absolute error)
+    parameters["loss_type"] = ["mse", "mae"]
 
     # run parameters
-    parameters["epochs"] = [80000]
+    parameters["epochs"] = [10000]
 
     return list(parameters.keys()), list(product(*parameters.values()))
 
