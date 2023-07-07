@@ -3,8 +3,13 @@ import torch.nn as nn
 import wandb
 
 from data_loader import load_datasets
-from model import NN, NNGrow
+from model import NN, NNGrow, NNSkipShared
 
+MODEL_MAP = {
+    "NNSkipShared": NNSkipShared,
+    "NN": NN,
+    "NNGrow": NNGrow
+}
 
 class MLTrainer:
     def __init__(self, config, job_id):
@@ -71,19 +76,14 @@ class MLTrainer:
             self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.lr, weight_decay=self.decay)
 
 
-        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, factor=0.95, patience=200, min_lr=0.001)
+        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, factor=0.95, patience=200, min_lr=0.0001)
 
         self.wandb_config = self._create_config()
         self._initiate_wandb_run()
 
     def _create_model(self):
-        if self.model_type == "fixed":
-            model = NN(in_dim=self.in_dim, hidden_dim=self.hidden_dim, out_dim=self.out_dim,
+        model = MODEL_MAP[self.model_type](in_dim=self.in_dim, hidden_dim=self.hidden_dim, out_dim=self.out_dim,
                    n_layers=self.n_layer, act_fn=self.act_fn, dropout=self.dropout, inp_mode=self.inp_mode, augment_pos=self.augment_pos, augment_orient=self.augment_orient, pool=self.pool)
-        else:
-            model = NNGrow(in_dim=self.in_dim, hidden_dim=self.hidden_dim, out_dim=self.out_dim,
-                   n_layers=self.n_layer, act_fn=self.act_fn, dropout=self.dropout, inp_mode=self.inp_mode, augmented=self.augmented, pool=self.pool)
-
         model.to(self.device)
         print(model)
         return model
