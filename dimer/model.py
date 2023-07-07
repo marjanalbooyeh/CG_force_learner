@@ -1,8 +1,9 @@
 import torch
 import torch.nn as nn
+import rowan
 
 class NN(nn.Module):
-    def __init__(self, in_dim,  hidden_dim, out_dim, n_layers, act_fn="ReLU", dropout=0.3, inp_mode="append", augmented="r", pool="mean"):
+    def __init__(self, in_dim,  hidden_dim, out_dim, n_layers, act_fn="ReLU", dropout=0.3, inp_mode="append", augment_pos="r", augment_orient="a", pool="mean"):
         super(NN, self).__init__()
         self.in_dim = in_dim
         self.hidden_dim = hidden_dim
@@ -11,10 +12,13 @@ class NN(nn.Module):
         self.act_fn = act_fn
         self.dropout = dropout
         self.inp_mode = inp_mode
-        self.augmented = augmented
+        self.augment_pos = augment_pos
+        self.augment_orient = augment_orient
         self.pool = pool
         
-        if self.augmented == "r" and self.inp_mode =="append":
+        if self.augment_pos == "r" and self.inp_mode =="append":
+            self.in_dim += 1
+        if self.augment_orient == "a" and self.inp_mode =="append":
             self.in_dim += 1
 
         self.net = nn.Sequential(*self._get_net())
@@ -35,10 +39,13 @@ class NN(nn.Module):
         return layers
 
     def forward(self, x):
-        if self.augmented == "r" and self.inp_mode =="append":
+        if self.augment_pos == "r" and self.inp_mode =="append":
             # include center-to-center distance as a feature 
             x = torch.cat((x, torch.norm(x[:, :3], dim=1, keepdim=True).to(x.device)), dim=1).to(x.device)
 
+        if self.augment_orient == "a" and self.inp_mode == "append":
+            angles = torch.tensor(rowan.to_axis_angle(x[:, 3:7].detach().cpu().numpy())[1]).unsqueeze(1).to(x.device)
+            x = torch.cat((x, angles), dim=1).to(x.device)
         out = self.net(x)
 
         if self.inp_mode == "stack":
