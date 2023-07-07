@@ -20,34 +20,37 @@ def get_parameters():
     parameters = OrderedDict()
 
     # project parameters
-    parameters["project"] = ["Dimer-Learner-V4"]
+    parameters["project"] = ["Dimer-Learner-Jul7"]
     parameters["group"] = ["force"]
     parameters["notes"] = ["Learning dimer forces"]
     parameters["tags"] = [["NN", "force", "fixedNN"]]
     parameters["target_type"] = ["force"]
 
     # dataset parameters
-    parameters["data_path"] = ["/home/erjank_project/caesreu/datasets/dimer/"]
+    parameters["data_path"] = ["/home/erjank_project/caesreu/datasets/dimer_Jul3/"]
     parameters["inp_mode"] = ["append"]
-    parameters["augmented"] = ["r"]
-    parameters["batch_size"] = [32]
+    parameters["augment_pos"] = ["r"]
+    parameters["augment_orient"] = ["a"]
+    parameters["batch_size"] = [64]
     parameters["shrink"] = [False]
 
     # model parameters
     parameters["model_type"] = ["fixed"]
-    parameters["hidden_dim"] = [64, 128]
-    parameters["n_layer"] = [2]
-    parameters["act_fn"] = ["Tanh", "ReLU", "ELU"]
-    parameters["dropout"] = [0.5]
+    parameters["hidden_dim"] = [64]
+    parameters["n_layer"] = [3]
+    parameters["act_fn"] = ["Tanh"]
+    parameters["dropout"] = [0.3]
     parameters["pool"] = ["mean"]
 
     # optimizer parameters
     parameters["optim"] = ["Adam"]
     parameters["lr"] = [0.1]
+    parameters["use_scheduler"] = [True]
     parameters["decay"] = [0.0001]
+    parameters["loss_type"] = ["mse", "mae"]
 
     # run parameters
-    parameters["epochs"] = [80000]
+    parameters["epochs"] = [10000]
 
     return list(parameters.keys()), list(product(*parameters.values()))
 
@@ -56,7 +59,7 @@ custom_job_doc = {}  # add keys and values for each job document created
 
 
 def main(root=None):
-    project = signac.init_project("Dimer-Force", root=root)  # Set the signac project name
+    project = signac.init_project("Dimer-Force-Jul5", root=root)  # Set the signac project name
     param_names, param_combinations = get_parameters()
     # Create jobs
     for params in param_combinations:
