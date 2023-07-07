@@ -18,7 +18,8 @@ class MLTrainer:
         # dataset parameters
         self.data_path = config.data_path
         self.inp_mode = config.inp_mode
-        self.augmented = config.augmented
+        self.augment_pos = config.augment_pos
+        self.augment_orient = config.augment_orient
         self.batch_size = config.batch_size
         self.shrink = config.shrink
 
@@ -34,6 +35,8 @@ class MLTrainer:
         self.optim = config.optim
         self.lr = config.lr
         self.decay = config.decay
+        self.use_scheduler = config.use_scheduler
+        self.loss_type = config.loss_type
 
         # run parameters
         self.epochs = config.epochs
@@ -55,7 +58,11 @@ class MLTrainer:
         print(self.model)
 
         # create loss, optimizer and scheduler
-        self.loss = nn.L1Loss().to(self.device)
+        if self.loss_type == "mae":
+            self.loss = nn.L1Loss().to(self.device)
+        elif self.loss_type == "mse":
+            self.loss = nn.MSELoss().to(self.device)
+        print('loss type: ', self.loss)
         self.criteria = nn.L1Loss().to(self.device)
         if self.optim == "Adam":
             self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr,
@@ -64,7 +71,7 @@ class MLTrainer:
             self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.lr, weight_decay=self.decay)
 
 
-        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, factor=0.9, patience=100, min_lr=0.0001)
+        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, factor=0.95, patience=200, min_lr=0.001)
 
         self.wandb_config = self._create_config()
         self._initiate_wandb_run()
@@ -72,13 +79,13 @@ class MLTrainer:
     def _create_model(self):
         if self.model_type == "fixed":
             model = NN(in_dim=self.in_dim, hidden_dim=self.hidden_dim, out_dim=self.out_dim,
-                   n_layers=self.n_layer, act_fn=self.act_fn, dropout=self.dropout, inp_mode=self.inp_mode, augmented=self.augmented, pool=self.pool)
+                   n_layers=self.n_layer, act_fn=self.act_fn, dropout=self.dropout, inp_mode=self.inp_mode, augment_pos=self.augment_pos, augment_orient=self.augment_orient, pool=self.pool)
         else:
             model = NNGrow(in_dim=self.in_dim, hidden_dim=self.hidden_dim, out_dim=self.out_dim,
                    n_layers=self.n_layer, act_fn=self.act_fn, dropout=self.dropout, inp_mode=self.inp_mode, augmented=self.augmented, pool=self.pool)
 
         model.to(self.device)
-
+        print(model)
         return model
 
     def _create_config(self):
@@ -95,8 +102,11 @@ class MLTrainer:
             "model_type": self.model_type,
             "dropout": self.dropout,
             "target_type": self.target_type,
-            "augmented": self.augmented,
-            "pool": self.pool
+            "augment_pos": self.augment_pos,
+            "augment_orient": self.augment_orient,
+            "pool": self.pool,
+            "use_scheduler": self.use_scheduler,
+            "loss_type": self.loss_type
             
         }
         return config
@@ -186,7 +196,8 @@ class MLTrainer:
 
             train_loss= self._train()
             val_error = self._validation(self.valid_dataloader)
-            self.scheduler.step(val_error)                
+            if self.use_scheduler:
+                self.scheduler.step(val_error)                
             if epoch % 100 == 0:
 
                 print('epoch {}/{}: \n\t train_loss: {}, \n\t val_error: {}'.
