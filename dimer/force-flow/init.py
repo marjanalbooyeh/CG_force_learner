@@ -20,10 +20,10 @@ def get_parameters():
     parameters = OrderedDict()
 
     # project parameters
-    parameters["project"] = ["Dimer-Learner-Jul7"]
-    parameters["group"] = ["force"]
+    parameters["project"] = ["Dimer-Learner-Jul12"]
+    parameters["group"] = ["force-overfit"]
     parameters["notes"] = ["Learning dimer forces"]
-    parameters["tags"] = [["NN", "force", "fixedNN"]]
+    parameters["tags"] = ["NN"]
     parameters["target_type"] = ["force"]
 
     # dataset parameters
@@ -35,28 +35,28 @@ def get_parameters():
     # supported augmentations for rel. orientations: "a" (relative angle between two orientations)
     parameters["augment_orient"] = ["a"]
     parameters["batch_size"] = [64]
-    parameters["shrink"] = [False]
+    parameters["shrink"] = [True]
 
     # model parameters
     # supported model types: "NN", "NNSkipShared", "NNGrow"
-    parameters["model_type"] = ["NN"]
-    parameters["hidden_dim"] = [64]
-    parameters["n_layer"] = [3]
+    parameters["model_type"] = ["NNSkipShared"]
+    parameters["hidden_dim"] = [8]
+    parameters["n_layer"] = [10]
     parameters["act_fn"] = ["Tanh"]
-    parameters["dropout"] = [0.3]
+    parameters["dropout"] = [0.2]
     # supported pooling operations (only works when inp_mode="stack"): "mean", "max", "sum"
     parameters["pool"] = ["mean"]
 
     # optimizer parameters
     parameters["optim"] = ["Adam"]
-    parameters["lr"] = [0.1]
+    parameters["lr"] = [0.1, 0.001]
     parameters["use_scheduler"] = [True]
     parameters["decay"] = [0.0001]
     # supported loss types: "mse" (mean squared error), "mae" (means absolute error)
-    parameters["loss_type"] = ["mse", "mae"]
+    parameters["loss_type"] = ["mae", "mse"]
 
     # run parameters
-    parameters["epochs"] = [10000]
+    parameters["epochs"] = [60000]
 
     return list(parameters.keys()), list(product(*parameters.values()))
 

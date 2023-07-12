@@ -40,7 +40,7 @@ def _get_data_loader(dataset, batch_size, shuffle=True):
 def load_datasets(data_path, batch_size, inp_mode="append", shrink=False):
     train_df = pd.read_pickle(os.path.join(data_path, 'train.pkl'))
     if shrink:
-        train_df = train_df.sample(frac=0.5).reset_index(drop=True)
+        train_df = train_df.sample(frac=0.05).reset_index(drop=True)
         print("Training dataset shrunk to ", train_df.shape)
     val_df = pd.read_pickle(os.path.join(data_path, 'val.pkl'))
     test_df = pd.read_pickle(os.path.join(data_path, 'test.pkl'))
