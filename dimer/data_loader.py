@@ -7,29 +7,29 @@ from torch.utils.data import Dataset, DataLoader
 
 
 class CustomTrajDataset(Dataset):
-    def __init__(self, traj_df, mode="append"):
-        positions = torch.from_numpy(np.array(list(traj_df['position']))).type(torch.FloatTensor)
-        orientations = torch.from_numpy(np.array(list(traj_df['orientation']))).type(torch.FloatTensor)
-        forces = torch.from_numpy(np.array(list(traj_df['net_force']))).type(torch.FloatTensor)
-        torques = torch.from_numpy(np.array(list(traj_df['net_torque']))).type(torch.FloatTensor)
+    def __init__(self, traj_df):
+        self.particle_pos = torch.from_numpy(np.array(list(traj_df['particle_pos']))).type(torch.FloatTensor)
+        self.neighbor_pos = torch.from_numpy(np.array(list(traj_df['neighbor_pos']))).type(torch.FloatTensor)
+        
+        # self.particle_orient = torch.from_numpy(np.array(list(traj_df['particle_orient']))).type(torch.FloatTensor)
+        # self.neighbor_orient = torch.from_numpy(np.array(list(traj_df['neighbor_orient']))).type(torch.FloatTensor)
+        
+        self.features = torch.from_numpy(np.array(list(traj_df['features']))).type(torch.FloatTensor)
+        self.force = torch.from_numpy(np.array(list(traj_df['force']))).type(torch.FloatTensor)
+        self.torque = torch.from_numpy(np.array(list(traj_df['torque']))).type(torch.FloatTensor)
+        self.energy = torch.from_numpy(np.array(list(traj_df['energy']))).type(torch.FloatTensor)
 
-        if mode == "append":
-            self.inputs = torch.cat((positions, orientations), 1)
-        else:
-            r = torch.norm(positions, dim=1, keepdim=True)
-            positions = torch.concat((positions, r), dim=1)
-            self.inputs = torch.stack((positions, orientations), dim=1)
 
-        self.in_dim = self.inputs.shape[-1]
-        self.forces = forces
-        self.torques = torques
-        self.input_shape = self.inputs.shape
+        
 
     def __len__(self):
-        return len(self.inputs)
-
+        return len(self.features)
+    
+    def feature_dim(self):
+        return self.features.shape[1]
+        
     def __getitem__(self, i):
-        return self.inputs[i], self.forces[i], self.torques[i]
+        return (self.features[i], self.particle_pos[i], self.neighbor_pos[i]), self.force[i], self.torque[i], self.energy[i]
 
 
 def _get_data_loader(dataset, batch_size, shuffle=True):
@@ -37,16 +37,16 @@ def _get_data_loader(dataset, batch_size, shuffle=True):
     return dataloader
 
 
-def load_datasets(data_path, batch_size, inp_mode="append", shrink=False):
+def load_datasets(data_path, batch_size, shrink=False):
     train_df = pd.read_pickle(os.path.join(data_path, 'train.pkl'))
     if shrink:
-        train_df = train_df.sample(frac=0.05).reset_index(drop=True)
+        train_df = train_df.sample(frac=0.005).reset_index(drop=True)
         print("Training dataset shrunk to ", train_df.shape)
     val_df = pd.read_pickle(os.path.join(data_path, 'val.pkl'))
     test_df = pd.read_pickle(os.path.join(data_path, 'test.pkl'))
-    train_dataset = CustomTrajDataset(train_df, mode=inp_mode)
-    valid_dataset = CustomTrajDataset(val_df, mode=inp_mode)
-    test_dataset = CustomTrajDataset(test_df, mode=inp_mode)
+    train_dataset = CustomTrajDataset(train_df)
+    valid_dataset = CustomTrajDataset(val_df)
+    test_dataset = CustomTrajDataset(test_df)
 
     train_dataloader = _get_data_loader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
     valid_dataloader = _get_data_loader(dataset=valid_dataset, batch_size=batch_size, shuffle=True)
@@ -54,9 +54,16 @@ def load_datasets(data_path, batch_size, inp_mode="append", shrink=False):
 
     return train_dataloader, valid_dataloader, test_dataloader
 
-def load_test_dataset(data_path, batch_size, inp_mode="append"):
+def load_overfit_data(data_path, batch_size):
+    train_df = pd.read_pickle(data_path)
+    train_dataset = CustomTrajDataset(train_df)
+    train_dataloader = _get_data_loader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
+
+    return train_dataloader
+
+def load_test_dataset(data_path, batch_size):
     test_df = pd.read_pickle(os.path.join(data_path, 'test.pkl'))
-    test_dataset = CustomTrajDataset(test_df, mode=inp_mode)
+    test_dataset = CustomTrajDataset(test_df)
 
     test_dataloader = _get_data_loader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
 
