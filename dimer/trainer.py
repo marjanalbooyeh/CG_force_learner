@@ -12,8 +12,9 @@ MODEL_MAP = {
 }
 
 class MLTrainer:
-    def __init__(self, config, job_id):
+    def __init__(self, config, job_id, resume=False):
         print("***************CUDA: ", torch.cuda.is_available())
+        self.resume = resume
         self.job_id = job_id
         self.project = config.project
         self.group = config.group
@@ -75,6 +76,7 @@ class MLTrainer:
             
         # create model
         self.model = self._create_model()
+            
         print(self.model)
 
         # create loss, optimizer and schedule
@@ -93,7 +95,9 @@ class MLTrainer:
             self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.lr, weight_decay=self.decay)
 
 
-        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, factor=0.95, patience=200, min_lr=0.0001)
+        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, factor=0.98, patience=200, min_lr=0.001)
+        if resume:
+            self.load_last_state()
 
         self.wandb_config = self._create_config()
         self._initiate_wandb_run()
@@ -107,6 +111,13 @@ class MLTrainer:
         model.to(self.device)
         print(model)
         return model
+    def load_last_state(self):
+        print('reloading latest model and optimizer state...')
+        last_checkpoint = torch.load('last_checkpoint.pth')
+        self.model.load_state_dict(last_checkpoint['model'])
+#        self.optimizer.load_state_dict(last_checkpoint['optimizer'])
+        print('successfully loaded model and optimizer...')        
+        
 
     def _create_config(self):
         config = {
@@ -129,6 +140,7 @@ class MLTrainer:
             "use_scheduler": self.use_scheduler,
             "loss_type": self.loss_type,
             "batch_norm": self.batch_norm,
+            "resume": self.resume,
                    
         }
         print("***************** Config *******************")
