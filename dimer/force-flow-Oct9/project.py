@@ -77,7 +77,10 @@ class Fry(DefaultSlurmEnvironment):
 def sampled(job):
     return job.doc.get("done")
 
-
+@MyProject.label
+def resumed(job):
+    return job.doc.get("resumed")
+    
 @directives(executable="python -u")
 @directives(ngpu=1)
 @MyProject.operation
@@ -103,7 +106,31 @@ def sample(job):
         print("Training finished")
         print("-----------------------------")
 
-
+@directives(executable="python -u")
+@directives(ngpu=1)
+@MyProject.operation
+@MyProject.pre(sampled)
+@MyProject.post(resumed)
+def resume_job(job):
+        with job:
+            print("-----------------------")
+            print("JOB ID NUMBER:")
+            print(job.id)
+            print("-----------------------")
+            print("----------------------")
+            print("Creating the Trainer class...")
+            print("----------------------")
+            trainer_obj = MLTrainer(job.sp, job.id, resume=True)
+            job.doc["resume_run_name"] = trainer_obj.wandb_run_name
+            job.doc["resume_run_path"] = trainer_obj.wandb_run_path
+            print("Training...")
+            print("----------------------")
+            trainer_obj.run()
+            
+            job.doc["resumed"] = True
+            print("-----------------------------")
+            print("Training finished")
+            print("-----------------------------")
 def submit_project():
     MyProject().run()
 
