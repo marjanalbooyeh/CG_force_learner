@@ -43,6 +43,7 @@ class MLTrainer:
         # optimizer parameters
         self.optim = config.optim
         self.lr = config.lr
+        self.min_lr = config.min_lr
         self.decay = config.decay
         self.use_scheduler = config.use_scheduler
         self.loss_type = config.loss_type
@@ -95,7 +96,7 @@ class MLTrainer:
             self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.lr, weight_decay=self.decay)
 
 
-        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, factor=0.98, patience=200, min_lr=0.001)
+        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, factor=0.98, patience=200, min_lr=self.min_lr)
         if resume:
             self.load_last_state()
 
@@ -115,7 +116,9 @@ class MLTrainer:
         print('reloading latest model and optimizer state...')
         last_checkpoint = torch.load('last_checkpoint.pth')
         self.model.load_state_dict(last_checkpoint['model'])
-#        self.optimizer.load_state_dict(last_checkpoint['optimizer'])
+        self.optimizer.load_state_dict(last_checkpoint['optimizer'])
+        for param_group in self.optimizer.param_groups:
+            param_group['lr'] = 0.01
         print('successfully loaded model and optimizer...')        
         
 
