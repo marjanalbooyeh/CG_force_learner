@@ -27,7 +27,8 @@ def get_parameters():
     parameters["target_type"] = ["force"]
 
     # dataset parameters
-    parameters["data_path"] = ["/home/marjanalbooyeh/code/CG_force_learner/dimer/force-flow-Oct9/small-overfit-scaled.pkl"]
+    parameters["data_path"] = ["/home/marjanalbooyeh/code/CG_force_learner/dimer/force-flow-Oct9/small-overfit-scaled.pkl"] 
+    # parameters["data_path"] =["/home/erjank_project/marjan/CG_force_learner/datasets/dimer/limited_pair_orientation/3_pair_orientation_overfit_dimer.pkl"]
     # supported input modes: "append", "stack"
     parameters["inp_mode"] = ["append"]
     # supported augmentations for rel. positions: "r" (center-to-center distance)
@@ -53,6 +54,7 @@ def get_parameters():
     parameters["optim"] = ["SGD"]
     parameters["lr"] = [0.01]
     parameters["use_scheduler"] = [True]
+    parameters["scheduler_type"] = ["StepLR"]
     parameters["decay"] = [0.0001]
     # supported loss types: "mse" (mean squared error), "mae" (means absolute error)
     parameters["loss_type"] = ["mse"]
