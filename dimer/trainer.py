@@ -46,6 +46,7 @@ class MLTrainer:
         self.min_lr = config.min_lr
         self.decay = config.decay
         self.use_scheduler = config.use_scheduler
+        self.scheduler_type = config.scheduler_type
         self.loss_type = config.loss_type
         print(self.loss_type)
 
@@ -95,13 +96,19 @@ class MLTrainer:
         if self.optim == "SGD":
             self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.lr, weight_decay=self.decay)
 
-
-        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, factor=0.98, patience=200, min_lr=self.min_lr)
+        self.set_scheduler()
+        
         if resume:
             self.load_last_state()
 
         self.wandb_config = self._create_config()
         self._initiate_wandb_run()
+
+    def set_scheduler(self):
+        if self.scheduler_type == "ReduceLROnPlateau":
+            self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, factor=0.98, patience=200, min_lr=self.min_lr, verbose=True)
+        elif self.scheduler_type == "StepLR":
+            self.scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=5000, gamma = 0.98, verbose=True)
 
     def _create_model(self):
         model = MODEL_MAP[self.model_type](in_dim =self.in_dim, hidden_dim=self.hidden_dim, out_dim=self.out_dim,
@@ -141,6 +148,7 @@ class MLTrainer:
             # "augment_orient": self.augment_orient,
             # "pool": self.pool,
             "use_scheduler": self.use_scheduler,
+            "scheduler_type": self.scheduler_type,
             "loss_type": self.loss_type,
             "batch_norm": self.batch_norm,
             "resume": self.resume,
@@ -188,10 +196,13 @@ class MLTrainer:
 
             _loss = self.loss(model_prediction, target)
             _loss.backward()
-            train_loss += _loss * x1.shape[0]
+            train_loss += _loss
             self.optimizer.step()
+            if i % 200 == 0:
+                print('target: ', target)
+                print('prediction: ', prediction)
 
-        train_loss = train_loss / len(self.train_dataloader)
+        train_loss = train_loss / (i+1)
 
         return train_loss.item()
 
@@ -233,9 +244,12 @@ class MLTrainer:
         for epoch in range(self.epochs):
             train_loss= self._train()
             if self.use_scheduler:
-                self.scheduler.step(train_loss)
-            if epoch % 10 == 0:
-                print('epoch {}/{}: \n\t train_loss: {}'.
+                if self.scheduler_type == "ReduceLROnPlateau":
+                    self.scheduler.step(train_loss)
+                else:
+                    self.scheduler.step()
+            if epoch % 100 == 0:
+                print('####### epoch {}/{}: \n\t train_loss: {}'.
                       format(epoch + 1, self.epochs, train_loss))
 
                 wandb.log({'train_loss': train_loss,
